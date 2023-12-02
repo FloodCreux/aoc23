@@ -1,0 +1,4 @@
+(executable
+ (public_name trebuchet)
+ (name main)
+ (libraries trebuchet))
