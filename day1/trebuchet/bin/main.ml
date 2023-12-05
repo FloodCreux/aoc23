@@ -6,7 +6,10 @@ print_int part_1;;
 print_newline ();;
 close_in file_channel
 
-let file_channel = open_in "input.txt"
+let file_channel = open_in "input.txt";;
+
+print_endline "Solution for part 2:"
+
 let part_2 = Trebuchet.solve_part_2 file_channel;;
 
 print_string "Part 2: ";;

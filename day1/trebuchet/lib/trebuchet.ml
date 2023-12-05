@@ -37,16 +37,22 @@ let solve_part_1 file_channel =
   process_lines_1 all_lines
 
 let get_number_from_string line =
-  List.iter
-    (fun x -> if String.starts_with line ~prefix:x then return Some (1, x))
-    [ "one"; "two"; "three"; "four"; "five"; "six"; "seven" ]
+  let rec aux numbers i =
+    let num = List.nth numbers i in
+    if String.starts_with line ~prefix:num then Some (char_of_int (i + 49), num)
+    else if i >= List.length numbers - 1 then None
+    else aux numbers (i + 1)
+  in
+  aux
+    [ "one"; "two"; "three"; "four"; "five"; "six"; "seven"; "eight"; "nine" ]
+    0
 
 let line_adjustments_part_2 line =
   let n = String.length line in
   let rec aux first last i =
     if i >= n then
       match (first, last) with
-      | Some f, Some l ->
+      | Some f, Some l when f >= '0' && f <= '9' && l >= '0' && l <= '9' ->
           Some (int_of_string (String.make 1 f ^ String.make 1 l))
       | _ -> None
     else
