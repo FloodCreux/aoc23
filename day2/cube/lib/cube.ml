@@ -12,19 +12,28 @@ let parse_score score =
   let split_score = String.split_on_char ' ' (String.trim score) in
   (List.nth split_score 1, List.hd split_score)
 
+let is_valid_score color score =
+  match color with
+  | "red" -> int_of_string score <= 12
+  | "blue" -> int_of_string score <= 14
+  | "green" -> int_of_string score <= 13
+  | _ -> false
+
 let parse_round round =
   let split_round = String.split_on_char ',' round in
   List.fold_left
     (fun acc score_str ->
       let color, score = parse_score score_str in
-      StringMap.update color
-        (function
-          | Some existing_score ->
-              Some
-                (string_of_int
-                   (int_of_string existing_score + int_of_string score))
-          | None -> Some score)
-        acc)
+      if is_valid_score color score then
+        StringMap.update color
+          (function
+            | Some existing_score ->
+                Some
+                  (string_of_int
+                     (int_of_string existing_score + int_of_string score))
+            | None -> Some score)
+          acc
+      else StringMap.update color (fun _ -> Some "9999999") acc)
     StringMap.empty split_round
 
 let parse_game_rounds rounds =
@@ -49,18 +58,11 @@ let solve_scores games =
     match games with
     | [] -> lst
     | (game_id, game_scores) :: rest ->
-        let red_score = StringMap.find "red" game_scores in
-        let blue_score = StringMap.find "blue" game_scores in
-        let green_score = StringMap.find "green" game_scores in
-        Printf.printf "Game %d: red (%s), blue (%s), green (%s)\n" game_id
-          red_score blue_score green_score;
-        if
-          int_of_string red_score <= 12
-          && int_of_string blue_score <= 14
-          && int_of_string green_score <= 13
-        then (
-          Printf.printf "Game %d works\n" game_id;
-          solve rest (game_id :: lst))
+        let red_score = int_of_string (StringMap.find "red" game_scores) in
+        let blue_score = int_of_string (StringMap.find "blue" game_scores) in
+        let green_score = int_of_string (StringMap.find "green" game_scores) in
+        if red_score <= 999999 && blue_score <= 99999 && green_score <= 99999
+        then solve rest (game_id :: lst)
         else solve rest lst
   in
   solve games []
