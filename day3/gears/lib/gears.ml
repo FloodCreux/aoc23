@@ -28,13 +28,38 @@ let create_matrix lst =
   fill_matrix lst 0;
   matrix
 
+let check_first_row row next_row =
+  let rec check row next_row col valid =
+    if col >= Array.length row then valid
+    else
+      let item = Array.get row col in
+      if item = '.' then check row next_row (col + 1) valid
+      else
+        let valid =
+          if col > 0 && col < Array.length row then
+            let left = Array.get row (col - 1) in
+            let bottom_left = Array.get next_row (col - 1) in
+            let bottom = Array.get next_row col in
+            let bottom_right = Array.get next_row (col + 1) in
+            valid || left != '.' || bottom_left != '.' || bottom != '.'
+            || bottom_right != '.'
+          else if col = 0 then
+            let bottom_left = Array.get next_row (col - 1) in
+            let bottom = Array.get next_row col in
+            let bottom_right = Array.get next_row (col + 1) in
+            valid || bottom_left != '.' || bottom != '.' || bottom_right != '.'
+          else if col = Array.length row then
+            let left = Array.get row (col - 1) in
+            let bottom_left = Array.get next_row (col - 1) in
+            let bottom = Array.get next_row col in
+            valid || left != '.' || bottom_left != '.' || bottom != '.'
+          else valid
+        in
+        check row next_row (col + 1) valid
+  in
+  check row next_row 0 false
+
 let solve_part_1 lst =
   let matrix = create_matrix lst in
-  let rec solve row solution =
-    Array.iter
-      (fun col ->
-        print_char row.(col);
-        print_int solution)
-      row
-  in
-  Array.iter (fun row -> solve row 0) matrix
+  let solve row _ = check_first_row row (Array.get matrix 1) in
+  Array.mapi (fun _ row -> solve row 0) matrix
