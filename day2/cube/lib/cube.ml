@@ -102,14 +102,6 @@ let parse_game_rounds_2 rounds =
           if int_of_string a >= int_of_string b then Some a else Some b)
         acc (parse_round_2 round))
     StringMap.empty split_rounds
-(* let rec parse round lst = *)
-(*   match round with *)
-(*   | [] -> lst *)
-(*   | round :: rest -> *)
-(*       let parsed_round = parse_round_2 round in *)
-(*       parse rest (parsed_round :: lst) *)
-(* in *)
-(* parse split_rounds StringMap.empty *)
 
 let parse_game_line_2 line =
   let split_line = String.split_on_char ':' line in
