@@ -78,17 +78,38 @@ let solve_part_1 stdin =
   process_games solved_games
 
 (* Part 2 Logic *)
+let parse_round_2 round =
+  let split_round = String.split_on_char ',' round in
+  List.fold_left
+    (fun acc score_str ->
+      let color, score = parse_score score_str in
+      StringMap.update color
+        (function
+          | Some existing_score ->
+              if int_of_string existing_score >= int_of_string score then
+                Some existing_score
+              else Some score
+          | None -> Some score)
+        acc)
+    StringMap.empty split_round
+
 let parse_game_rounds_2 rounds =
   let split_rounds = String.split_on_char ';' rounds in
   List.fold_left
     (fun acc round ->
       StringMap.union
         (fun _ a b ->
-          let left_score = int_of_string a in
-          let right_score = int_of_string b in
-          if left_score <= right_score then Some a else Some b)
-        acc (parse_round round))
+          if int_of_string a >= int_of_string b then Some a else Some b)
+        acc (parse_round_2 round))
     StringMap.empty split_rounds
+(* let rec parse round lst = *)
+(*   match round with *)
+(*   | [] -> lst *)
+(*   | round :: rest -> *)
+(*       let parsed_round = parse_round_2 round in *)
+(*       parse rest (parsed_round :: lst) *)
+(* in *)
+(* parse split_rounds StringMap.empty *)
 
 let parse_game_line_2 line =
   let split_line = String.split_on_char ':' line in
