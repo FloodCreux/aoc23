@@ -113,23 +113,26 @@ let filter_digits_2 positions prev next result =
   let get_digit line i =
     let pos = List.nth positions i in
     let rec get_left j res =
-      if j < 0 then try int_of_string res with _ -> 0
+      if j < 0 then res
       else if is_digit line j then
         let c = String.get line j in
-        if c >= '0' && c <= '9' then get_left (j - 1) (String.make 1 c ^ res)
-        else try int_of_string res with _ -> 0
-      else try int_of_string res with _ -> 0
+        if c >= '0' && c <= '9' then
+          get_left (j - 1) (int_of_string (String.make 1 c ^ string_of_int res))
+        else res
+      else res
     in
     let rec get_right j res =
-      if j < 0 then try int_of_string res with _ -> 0
+      if j < 0 then res
       else if is_digit line j then
         let c = String.get line j in
-        if c >= '0' && c <= '9' then get_right (j - 1) (res ^ String.make 1 c)
-        else try int_of_string res with _ -> 0
-      else try int_of_string res with _ -> 0
+        if c >= '0' && c <= '9' then
+          get_right (j - 1)
+            (int_of_string (string_of_int res ^ String.make 1 c))
+        else res
+      else res
     in
-    let left = get_left pos "" in
-    let right = get_right pos "" in
+    let left = get_left pos 0 in
+    let right = get_right pos 0 in
     left + right
   in
   match (prev, next) with
