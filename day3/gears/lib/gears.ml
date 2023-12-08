@@ -39,10 +39,10 @@ let get_digits cur =
 let filter_digits cur line prev next =
   let check_line line start stop =
     let right =
-      if start > 0 then String.get line (start - 1) == '.' else false
+      if start > 0 then String.get line (start - 1) != '.' else false
     in
     let left =
-      if stop < String.length line - 1 then String.get line (stop + 1) == '.'
+      if stop < String.length line - 1 then String.get line (stop + 1) != '.'
       else false
     in
     right || left
