@@ -38,23 +38,37 @@ let get_digits cur =
 
 let filter_digits cur line prev next =
   let check_line line start stop =
-    let right = if start > 0 then String.get line (start - 1) else '.' in
-    let left =
-      if stop < String.length line - 1 then String.get line (stop + 1) else '.'
+    let right =
+      if start > 0 then String.get line (start - 1) == '.' else false
     in
-    right != '.' || left != '.'
+    let left =
+      if stop < String.length line - 1 then String.get line (stop + 1) == '.'
+      else false
+    in
+    right || left
   in
   List.filter
     (fun (_d, start, stop) ->
       match (prev, next) with
-      | None, None -> check_line line start stop
+      | None, None ->
+          let result = check_line line start stop in
+          result
       | Some prev, None ->
-          check_line line start stop || check_line prev start stop
+          let result =
+            check_line line start stop || check_line prev start stop
+          in
+          result
       | None, Some next ->
-          check_line line start stop || check_line next start stop
+          let result =
+            check_line line start stop || check_line next start stop
+          in
+          result
       | Some prev, Some next ->
-          check_line line start stop || check_line prev start stop
-          || check_line next start stop)
+          let result =
+            check_line line start stop || check_line prev start stop
+            || check_line next start stop
+          in
+          result)
     cur
 
 let solve_part_1 lst =
@@ -68,6 +82,7 @@ let solve_part_1 lst =
           if List.length rest > 1 then Some (List.nth rest 1) else None
         in
         let digits = get_digits curr in
-        solve rest (filter_digits digits curr prev next)
+        solve rest (result @ filter_digits digits curr prev next)
   in
-  solve all_lines []
+  let results = solve all_lines [] in
+  List.fold_left (fun acc (d, _, _) -> acc + int_of_string d) 0 results
