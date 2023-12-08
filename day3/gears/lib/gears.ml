@@ -37,7 +37,7 @@ let get_digits cur =
   process_curr 0 []
 
 let filter_digits cur line prev next =
-  let check_line line start stop =
+  let check_ends line start stop =
     let right =
       if start > 0 then String.get line (start - 1) != '.' else false
     in
@@ -47,41 +47,35 @@ let filter_digits cur line prev next =
     in
     right || left
   in
-  let check_middle line start stop =
-    if start < stop then
-      let rec check_middle i =
-        if i >= stop then false
-        else
-          let c = String.get line i in
-          if c != '.' then true else check_middle (i + 1)
-      in
-      check_middle (start + 1)
-    else false
+  let check_all line start stop =
+    let rec check_middle i =
+      if i > stop then false
+      else
+        let c = String.get line i in
+        if c != '.' then true else check_middle (i + 1)
+    in
+    check_middle start
   in
   List.filter
     (fun (_d, start, stop) ->
       match (prev, next) with
       | None, None ->
-          let result = check_line line start stop in
+          let result = check_ends line start stop in
           result
       | Some prev, None ->
           let result =
-            check_line line start stop || check_line prev start stop
-            || check_middle prev start stop
+            check_ends line start stop || check_all prev start stop
           in
           result
       | None, Some next ->
           let result =
-            check_line line start stop || check_line next start stop
-            || check_middle next start stop
+            check_ends line start stop || check_all next start stop
           in
           result
       | Some prev, Some next ->
           let result =
-            check_line line start stop || check_line prev start stop
-            || check_middle prev start stop
-            || check_line next start stop
-            || check_middle next start stop
+            check_ends line start stop || check_all prev start stop
+            || check_all next start stop
           in
           result)
     cur
@@ -93,7 +87,7 @@ let solve_part_1 lst =
     | [] -> result
     | curr :: rest ->
         let next =
-          if List.length rest > 1 then Some (List.nth rest 1) else None
+          if List.length rest >= 1 then Some (List.hd rest) else None
         in
         let digits = get_digits curr in
         solve (Some curr) rest (result @ filter_digits digits curr prev next)
