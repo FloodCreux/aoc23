@@ -8,7 +8,7 @@ let input_lines stdin =
 
 let is_digit c = Char.code c >= Char.code '0' && Char.code c <= Char.code '9'
 
-let check_digits cur prev next =
+let check_digits cur prev _next =
   let rec process_curr i digits =
     if i >= String.length cur then digits
     else
@@ -28,23 +28,39 @@ let check_digits cur prev next =
             Some (start_pos, end_pos)
         | None -> None
       in
-      let curr_digits = find_next_digit cur in
-      match prev with Some prev -> curr_digits | None -> curr_digits
+        match find_next_digit cur with
+        | Some (start_pos, end_pos) ->
+            let digit = String.sub cur start_pos (end_pos - start_pos + 1) in
+            process_curr (end_pos + 1) ((digit, start_pos, end_pos) :: digits)
+        | None -> List.rev digits
+      in
+      let rec filter_digit digits i [] =
+        let digit = List.nth digits i in
+        match prev with
+        | Some prev ->
+            let left = String.sub prev digit.(1) 1 in
+            let right = String.sub prev digit.(2) 1 in
+            if left != "." && right != "." then true else false
+        | None -> false
+      in
+      filter_digit digits 0 []
   in
-  match next with Some next -> curr_digits | None -> curr_digits
+  process_curr 0 []
 
 let solve_part_1 lst =
   let all_lines = input_lines lst in
-  let solve arr =
-    let len = Array.length arr in
-    let rec process i =
+  let solve lst =
+    let len = List.length lst in
+    let arr = Array.of_list lst in
+    let process i =
       if i >= len then ()
       else
         let current = arr.(i) in
         let prev = if i > 0 then Some arr.(i - 1) else None in
         let next = if i < len - 1 then Some arr.(i + 1) else None in
-        check_digits current prev next
+        let digits = check_digits current prev next in
+        List.iter (fun d -> print_endline d) digits
     in
     process 0
   in
-  solve (Array.of_list all_lines)
+  solve all_lines
