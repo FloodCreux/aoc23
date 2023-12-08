@@ -78,8 +78,8 @@ let filter_digits cur line prev next =
           result
       | Some prev, Some next ->
           let result =
-            check_line line start stop
-            || (check_line prev start stop || check_middle prev start stop)
+            check_line line start stop || check_line prev start stop
+            || check_middle prev start stop
             || check_line next start stop
             || check_middle next start stop
           in
@@ -88,16 +88,15 @@ let filter_digits cur line prev next =
 
 let solve_part_1 lst =
   let all_lines = input_lines lst in
-  let rec solve lst result =
+  let rec solve prev lst result =
     match lst with
     | [] -> result
     | curr :: rest ->
-        let prev = if rest = [] then None else Some (List.hd rest) in
         let next =
           if List.length rest > 1 then Some (List.nth rest 1) else None
         in
         let digits = get_digits curr in
-        solve rest (result @ filter_digits digits curr prev next)
+        solve (Some curr) rest (result @ filter_digits digits curr prev next)
   in
-  let results = solve all_lines [] in
+  let results = solve None all_lines [] in
   List.fold_left (fun acc (d, _, _) -> acc + int_of_string d) 0 results
