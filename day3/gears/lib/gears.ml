@@ -6,11 +6,11 @@ let input_lines stdin =
   in
   input []
 
-let is_digit c = Char.code c >= '0' && Char.code c <= '9'
+let is_digit c = Char.code c >= Char.code '0' && Char.code c <= Char.code '9'
 
 let check_digits cur prev next =
   let rec process_curr i digits =
-    if i >= Array.length cur then digits
+    if i >= String.length cur then digits
     else
       let find_next_digit s =
         let len = String.length s in
@@ -28,13 +28,13 @@ let check_digits cur prev next =
             Some (start_pos, end_pos)
         | None -> None
       in
-      let curr_digits = process_curr 0 [] in
+      let curr_digits = find_next_digit cur in
       match prev with Some prev -> curr_digits | None -> curr_digits
   in
   match next with Some next -> curr_digits | None -> curr_digits
 
 let solve_part_1 lst =
-  let all_lines = input_lines stdin in
+  let all_lines = input_lines lst in
   let solve arr =
     let len = Array.length arr in
     let rec process i =
