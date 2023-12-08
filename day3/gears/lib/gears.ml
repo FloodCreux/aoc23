@@ -133,20 +133,26 @@ let filter_digits_2 positions prev next result =
     in
     let left = get_left pos 0 in
     let right = get_right pos 0 in
-    left + right
+    left * right
   in
   match (prev, next) with
   | None, None -> result
   | Some prev, None ->
       let rec check i =
         if i >= List.length positions then result
-        else get_digit prev i + check (i + 1)
+        else
+          let prev_dig = get_digit prev i in
+          print_int prev_dig;
+          print_newline ();
+          prev_dig + check (i + 1)
       in
       check result
   | None, Some next ->
       let rec check i =
         if i >= List.length positions then result
-        else get_digit next i + check (i + 1)
+        else
+          let next_dig = get_digit next i in
+          next_dig + check (i + 1)
       in
       check result
   | Some prev, Some next ->
@@ -169,6 +175,7 @@ let solve_part_2 lst =
           if List.length rest >= 1 then Some (List.hd rest) else None
         in
         let digits = get_asterisks curr in
-        solve (Some curr) rest (result + filter_digits_2 digits prev next 0)
+        solve (Some curr) rest (filter_digits_2 digits prev next 0 :: result)
   in
-  solve None all_lines 0
+  let lst = solve None all_lines [] in
+  List.fold_left (fun acc x -> acc + x) 0 lst
