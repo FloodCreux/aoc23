@@ -96,3 +96,76 @@ let solve_part_1 lst =
   in
   let results = solve None all_lines [] in
   List.fold_left (fun acc (d, _, _) -> acc + int_of_string d) 0 results
+
+let get_asterisks cur =
+  let rec process i positions =
+    if i >= String.length cur then positions
+    else if cur.[i] = '*' then process (i + 1) (i :: positions)
+    else process (i + 1) positions
+  in
+  process 0 []
+
+let filter_digits_2 positions prev next result =
+  let is_digit line pos =
+    let c = String.get line pos in
+    if c >= '0' && c <= '9' then true else false
+  in
+  let get_digit line i =
+    let pos = List.nth positions i in
+    let rec get_left j res =
+      if j < 0 then try int_of_string res with _ -> 0
+      else if is_digit line j then
+        let c = String.get line j in
+        if c >= '0' && c <= '9' then get_left (j - 1) (String.make 1 c ^ res)
+        else try int_of_string res with _ -> 0
+      else try int_of_string res with _ -> 0
+    in
+    let rec get_right j res =
+      if j < 0 then try int_of_string res with _ -> 0
+      else if is_digit line j then
+        let c = String.get line j in
+        if c >= '0' && c <= '9' then get_right (j - 1) (res ^ String.make 1 c)
+        else try int_of_string res with _ -> 0
+      else try int_of_string res with _ -> 0
+    in
+    let left = get_left pos "" in
+    let right = get_right pos "" in
+    left + right
+  in
+  match (prev, next) with
+  | None, None -> result
+  | Some prev, None ->
+      let rec check i =
+        if i >= List.length positions then result
+        else get_digit prev i + check (i + 1)
+      in
+      check result
+  | None, Some next ->
+      let rec check i =
+        if i >= List.length positions then result
+        else get_digit next i + check (i + 1)
+      in
+      check result
+  | Some prev, Some next ->
+      let rec check i =
+        if i >= List.length positions then result
+        else
+          let next_dig = get_digit next i in
+          let prev_dig = get_digit prev i in
+          next_dig + prev_dig + check (i + 1)
+      in
+      check result
+
+let solve_part_2 lst =
+  let all_lines = input_lines lst in
+  let rec solve prev lst result =
+    match lst with
+    | [] -> result
+    | curr :: rest ->
+        let next =
+          if List.length rest >= 1 then Some (List.hd rest) else None
+        in
+        let digits = get_asterisks curr in
+        solve (Some curr) rest (result + filter_digits_2 digits prev next 0)
+  in
+  solve None all_lines 0
