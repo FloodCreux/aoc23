@@ -58,6 +58,8 @@ let filter_digits cur line prev next =
   in
   List.filter
     (fun (_d, start, stop) ->
+      let start = if start = 0 then 0 else start - 1 in
+      let stop = if stop = String.length line - 1 then stop else stop + 1 in
       match (prev, next) with
       | None, None ->
           let result = check_ends line start stop in
