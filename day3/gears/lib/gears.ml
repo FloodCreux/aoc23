@@ -50,6 +50,7 @@ let solve_part_1 lst =
           (fun (s, start, stop) ->
             Printf.printf "%s: start - %d, end - %d\n" s start stop)
           digits;
+        Printf.printf "---------------------------\n";
         solve rest
   in
   solve all_lines
