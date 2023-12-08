@@ -47,6 +47,17 @@ let filter_digits cur line prev next =
     in
     right || left
   in
+  let check_middle line start stop =
+    if start < stop then
+      let rec check_middle i =
+        if i >= stop then false
+        else
+          let c = String.get line i in
+          if c != '.' then true else check_middle (i + 1)
+      in
+      check_middle (start + 1)
+    else false
+  in
   List.filter
     (fun (_d, start, stop) ->
       match (prev, next) with
@@ -56,17 +67,21 @@ let filter_digits cur line prev next =
       | Some prev, None ->
           let result =
             check_line line start stop || check_line prev start stop
+            || check_middle prev start stop
           in
           result
       | None, Some next ->
           let result =
             check_line line start stop || check_line next start stop
+            || check_middle next start stop
           in
           result
       | Some prev, Some next ->
           let result =
-            check_line line start stop || check_line prev start stop
+            check_line line start stop
+            || (check_line prev start stop || check_middle prev start stop)
             || check_line next start stop
+            || check_middle next start stop
           in
           result)
     cur
