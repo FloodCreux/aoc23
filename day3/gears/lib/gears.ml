@@ -133,28 +133,12 @@ let filter_digits_2 positions prev next result =
     in
     let left = get_left pos 0 in
     let right = get_right pos 0 in
-    left * right
+    int_of_string (string_of_int left ^ string_of_int right)
   in
   match (prev, next) with
   | None, None -> result
-  | Some prev, None ->
-      let rec check i =
-        if i >= List.length positions then result
-        else
-          let prev_dig = get_digit prev i in
-          print_int prev_dig;
-          print_newline ();
-          prev_dig + check (i + 1)
-      in
-      check result
-  | None, Some next ->
-      let rec check i =
-        if i >= List.length positions then result
-        else
-          let next_dig = get_digit next i in
-          next_dig + check (i + 1)
-      in
-      check result
+  | Some _, None -> result
+  | None, Some _ -> result
   | Some prev, Some next ->
       let rec check i =
         if i >= List.length positions then result
@@ -178,4 +162,9 @@ let solve_part_2 lst =
         solve (Some curr) rest (filter_digits_2 digits prev next 0 :: result)
   in
   let lst = solve None all_lines [] in
+  List.iter
+    (fun x ->
+      print_int x;
+      print_newline ())
+    lst;
   List.fold_left (fun acc x -> acc + x) 0 lst
